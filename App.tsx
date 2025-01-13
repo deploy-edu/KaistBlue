@@ -1,20 +1,19 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import * as SplashScreen from 'expo-splash-screen';
+import RootStackNavigator from '@/navigators/RootStackNavigator';
+import {NavigationContainer} from '@react-navigation/native';
+
+import dayjs from 'dayjs';
+import * as React from 'react';
+import { useFonts } from 'expo-font';
+
+dayjs.extend(relativeTime);
 
 export default function App() {
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <RootStackNavigator />
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
