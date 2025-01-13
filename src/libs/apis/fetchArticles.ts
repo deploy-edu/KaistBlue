@@ -2,6 +2,7 @@ import { AxiosResponse } from "axios";
 import axiosClient from "../axiosClient";
 
 export type Article = {
+  id: number;
   boardId: number;
   communityId: number;
   title: string;
