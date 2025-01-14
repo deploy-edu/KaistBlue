@@ -21,7 +21,7 @@ export type RequestParams = {
 export type ResponseParams = {
   message: string;
   status: string;
-  data: Article[];
+  data: Article;
 };
 
 const saveArticle = async ({

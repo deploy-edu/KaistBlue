@@ -8,6 +8,9 @@ type ArticleStoreState = {
 
 type ArticleStoreActions = {
   setArticles: (data: Article[]) => void;
+  addArticle: (article: Article) => void;
+  updateArticle: (article: Article) => void;
+  deleteArticle: (id: number) => void;
 };
 
 export const useArticleStore = create<ArticleStoreState & ArticleStoreActions>(
@@ -27,6 +30,40 @@ export const useArticleStore = create<ArticleStoreState & ArticleStoreActions>(
       set({
         articlesById,
         articleIds,
+      });
+    },
+    addArticle: (article) => {
+      set((state) => {
+        return {
+          ...state,
+          articlesById: {
+            ...state.articlesById,
+            [article.boardId]: article,
+          },
+          articleIds: [article.boardId, ...state.articleIds],
+        };
+      });
+    },
+    updateArticle: (article) => {
+      set((state) => {
+        return {
+          ...state,
+          articlesById: {
+            ...state.articlesById,
+            [article.boardId]: article,
+          },
+        };
+      });
+    },
+    deleteArticle: (id) => {
+      set((state) => {
+        const articlesById = { ...state.articlesById };
+        delete articlesById[id];
+        return {
+          ...state,
+          articlesById,
+          articleIds: state.articleIds.filter((articleId) => articleId !== id),
+        };
       });
     },
   })

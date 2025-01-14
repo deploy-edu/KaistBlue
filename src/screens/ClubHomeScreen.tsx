@@ -6,7 +6,7 @@ import { useArticleStore } from "@/stores/useArticleStore";
 import { useCommunityStore } from "@/stores/useCommunityStore";
 import styled from "@emotion/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { FC, useCallback, useEffect } from "react";
+import React, { FC, useCallback, useEffect, useState } from "react";
 import { FlatList } from "react-native";
 
 const Container = styled.View`
@@ -17,6 +17,7 @@ const Container = styled.View`
 type Props = NativeStackScreenProps<RootStackParamList, "ClubHome">;
 
 const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const { communityId } = route.params;
   const community = useCommunityStore(
     (state) => state.communitiesById[communityId]
@@ -38,6 +39,15 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
   const onWrite = useCallback(() => {
     navigation.navigate("AddArticle", { communityId });
   }, [communityId, navigation]);
+
+  const onRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    const articles = await fetchArticles({
+      id: communityId.toString(),
+    });
+    useArticleStore.getState().setArticles(articles.data);
+    setIsRefreshing(false);
+  }, [communityId]);
 
   useEffect(() => {
     async function init() {
@@ -66,6 +76,8 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
           <ArticleListItem id={item} onPress={onPress(item)} />
         )}
         keyExtractor={(item) => item.toString()}
+        refreshing={isRefreshing}
+        onRefresh={onRefresh}
       />
     </Container>
   );

@@ -1,8 +1,9 @@
 import CancelButton from "@/components/CancelButton";
 import Header from "@/components/Header";
 import SubmitButton from "@/components/SubmitButton";
-import axiosClient from "@/libs/axiosClient";
+import saveArticle from "@/libs/apis/saveArticle";
 import { RootStackParamList } from "@/navigators/RootStackNavigator";
+import { useArticleStore } from "@/stores/useArticleStore";
 import styled from "@emotion/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { FC, useCallback, useState } from "react";
@@ -36,6 +37,7 @@ const ButtonContainer = styled.View`
   align-items: center;
   justify-content: space-between;
   padding-horizontal: 16px;
+  gap: 16px;
 `;
 
 const StyledTextInput = styled.TextInput`
@@ -59,12 +61,18 @@ const AddArticleScreen: FC<Props> = ({ navigation, route }) => {
   }, [navigation]);
 
   const onSubmit = useCallback(async () => {
-    const response = await axiosClient.post("board/save", {
+    const response = await saveArticle({
       title,
       content,
-      communityId,
+      communityId: communityId.toString(),
     });
-    console.log("response", response);
+    useArticleStore.getState().addArticle({
+      boardId: response.data.id,
+      title: response.data.title,
+      content: response.data.content,
+      communityId: response.data.communityId,
+      createdAt: response.data.createdAt,
+    });
     navigation.goBack();
   }, [communityId, content, navigation, title]);
 
@@ -85,6 +93,7 @@ const AddArticleScreen: FC<Props> = ({ navigation, route }) => {
             placeholder="내용을 입력해주세요."
             placeholderTextColor={"#7d7d7d"}
             onChangeText={setContent}
+            multiline
             value={content}
           />
         </ContentsContainer>
