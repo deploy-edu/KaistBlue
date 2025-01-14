@@ -17,12 +17,12 @@ export const useArticleStore = create<ArticleStoreState & ArticleStoreActions>(
     setArticles: (data) => {
       const articlesById = data.reduce<Record<number, Article>>(
         (acc, article) => {
-          acc[article.id] = article; // ID를 키로 사용
+          acc[article.boardId] = article; // ID를 키로 사용
           return acc;
         },
         {}
       );
-      const articleIds = data.map((article) => article.id);
+      const articleIds = data.map((article) => article.boardId);
 
       set({
         articlesById,

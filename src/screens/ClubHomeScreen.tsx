@@ -1,94 +1,18 @@
+import ArticleListItem from "@/components/ArticleListItem";
 import ClubHeader from "@/components/ClubHeader";
-import CommonText from "@/components/CommonText";
-import PublishingInfo from "@/components/PublishingInfo";
+import fetchArticles from "@/libs/apis/fetchArticles";
 import { RootStackParamList } from "@/navigators/RootStackNavigator";
+import { useArticleStore } from "@/stores/useArticleStore";
 import { useCommunityStore } from "@/stores/useCommunityStore";
 import styled from "@emotion/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import dayjs from "dayjs";
-import React, { FC, useCallback } from "react";
+import React, { FC, useCallback, useEffect } from "react";
 import { FlatList } from "react-native";
-
-const DATA = [
-  {
-    id: "bd7acbea-c1b1-46c2-aed5-3ad53abb28ba",
-    nickname: "하하",
-    title: "[모집] 새로운 동호회원을 기다립니다!!",
-    contents: "독서동호회에서 함께 책을 읽고 토론할 새로운 멤버를 모집합..",
-    publishedAt: new Date(),
-  },
-  {
-    id: "3ac68afc-c605-48d3-a4f8-fbd91aa97f63",
-    nickname: "하하",
-    title: "[모집] 새로운 동호회원을 기다립니다!!",
-    contents: "독서동호회에서 함께 책을 읽고 토론할 새로운 멤버를 모집합..",
-    publishedAt: new Date(),
-  },
-  {
-    id: "58694a0f-3da1-471f-bd96-145571e29d72",
-    nickname: "하하",
-    title: "[모집] 새로운 동호회원을 기다립니다!!",
-    contents: "독서동호회에서 함께 책을 읽고 토론할 새로운 멤버를 모집합..",
-    publishedAt: new Date(),
-  },
-];
 
 const Container = styled.View`
   flex: 1;
   background-color: #fff;
 `;
-
-const ItemContainer = styled.Pressable`
-  padding-bottom: 20px;
-  border-bottom-width: 1px;
-  border-bottom-color: #e9e9e9;
-  margin-bottom: 15px;
-  margin-horizontal: 16px;
-`;
-
-const ItemTitle = styled(CommonText)`
-  color: #000;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 18.24px;
-  margin-bottom: 9px;
-`;
-
-const ItemContent = styled(CommonText)`
-  color: #000
-  font-size: 13px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 14.82px;
-`;
-
-type ItemProps = {
-  title: string;
-  nickname: string;
-  content: string;
-  publishedAt: Date;
-  onPress: () => void;
-};
-
-const Item = ({
-  title,
-  nickname,
-  publishedAt,
-  content,
-  onPress,
-}: ItemProps) => (
-  <ItemContainer onPress={onPress}>
-    <PublishingInfo
-      nickname={nickname}
-      publishedAt={dayjs(publishedAt).fromNow()}
-      iconUrl=""
-      id=""
-    />
-    <ItemTitle>{title}</ItemTitle>
-    <ItemContent>{content}</ItemContent>
-  </ItemContainer>
-);
 
 type Props = NativeStackScreenProps<RootStackParamList, "ClubHome">;
 
@@ -97,6 +21,8 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
   const community = useCommunityStore(
     (state) => state.communitiesById[communityId]
   );
+
+  const articleIds = useArticleStore((state) => state.articleIds);
 
   const onPress = useCallback(
     (id: number) => () => {
@@ -113,10 +39,20 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
     navigation.navigate("AddArticle", { communityId });
   }, [communityId, navigation]);
 
+  useEffect(() => {
+    async function init() {
+      const articles = await fetchArticles({
+        id: communityId.toString(),
+      });
+      useArticleStore.getState().setArticles(articles.data);
+    }
+    init();
+  }, []);
+
   return (
     <Container>
       <FlatList
-        data={DATA}
+        data={articleIds}
         ListHeaderComponent={
           <ClubHeader
             image={`${community.type}${community.image}`}
@@ -127,15 +63,9 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
           />
         }
         renderItem={({ item }) => (
-          <Item
-            title={item.title}
-            nickname={item.nickname}
-            content={item.contents}
-            publishedAt={item.publishedAt}
-            onPress={onPress(item.id)}
-          />
+          <ArticleListItem id={item} onPress={onPress(item)} />
         )}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.toString()}
       />
     </Container>
   );
