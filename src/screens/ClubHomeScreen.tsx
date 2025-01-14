@@ -60,6 +60,10 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
     setIsRefreshing(false);
   }, [communityId]);
 
+  const onProfile = useCallback(() => {
+    navigation.navigate("AddProfile", { communityId });
+  }, [communityId, navigation]);
+
   useEffect(() => {
     async function init() {
       const articles = await fetchArticles({
@@ -70,12 +74,6 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
     init();
   }, []);
 
-  useEffect(() => {
-    animRef.current.addListener(({ value }) => {
-      console.log(value);
-    });
-  }, []);
-
   return (
     <Container>
       <Animated.FlatList
@@ -84,10 +82,12 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
           <>
             <ClubHeader
               image={`${community.type}${community.image}`}
+              profileImage={undefined}
               title="창작과 문예"
               desc={`상상이 현실이 되는 그 순간\n창작과 문예의 세계에 빠져보세요.`}
               onBack={onBack}
               onWrite={onWrite}
+              onProfile={onProfile}
               style={{
                 transform: [
                   {

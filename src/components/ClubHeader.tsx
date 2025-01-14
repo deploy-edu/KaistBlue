@@ -1,17 +1,27 @@
+import ProfileImage from "@/components/ProfileImage";
 import styled from "@emotion/native";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { FC } from "react";
-import { Animated, Image, ViewStyle } from "react-native";
+import { Animated, Image, ImageBackground, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import CommonText from "./CommonText";
+import NanumGothicText from "./NanumGothicText";
 import TotalMemberInfo from "./TotalMemberInfo";
 
-const Container = styled.ImageBackground`
-  background-color: #000;
-`;
+type Props = {
+  style?: ViewStyle;
+  image: string;
+  profileImage?: string;
+  onBack?: () => void;
+  onWrite?: () => void;
+  onProfile?: () => void;
+  title: string;
+  desc: string;
+};
 
 const TopContainer = styled.View`
   flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
 `;
 
 const BottomContainer = styled.View`
@@ -27,9 +37,7 @@ const LinearGraidentContainer = styled(LinearGradient)`
   padding-horizontal: 25px;
 `;
 
-const BackButtonContainer = styled.Pressable`
-  width: 100px;
-`;
+const BackButtonContainer = styled.Pressable``;
 
 const WriteButtonContainer = styled.Pressable`
   width: 85px;
@@ -47,31 +55,27 @@ const WriteButtonIcon = styled.Image`
   margin-right: 8.94px;
 `;
 
-const WriteButtonTitle = styled(CommonText)`
+const WriteButtonTitle = styled(NanumGothicText)`
   color: #fff;
-  font-family: NanumGothic;
   font-size: 12px;
   font-style: normal;
   font-weight: 700;
   line-height: 13.68px;
 `;
 
-const Title = styled(CommonText)`
+const Title = styled(NanumGothicText)`
   color: #fff;
   text-align: center;
-  font-family: NanumGothic;
   font-size: 18px;
   font-style: normal;
   font-weight: 800;
-  margin-bottom: 12px;
-  margin-right: 100px;
-  flex: 1px;
+  flex: 1;
 `;
 
-const Description = styled(CommonText)`
+const Description = styled(NanumGothicText)`
+  margin-top: 12px;
   color: #fff;
   text-align: center;
-  font-family: NanumGothic;
   font-size: 13px;
   font-style: normal;
   font-weight: 400;
@@ -79,24 +83,21 @@ const Description = styled(CommonText)`
   flex: 1px;
 `;
 
-type Props = {
-  style?: ViewStyle;
-  image: string;
-  onBack?: () => void;
-  onWrite?: () => void;
-  title: string;
-  desc: string;
-};
+const ProfileButton = styled.Pressable`
+  justify-content: center;
+`;
 
 const BackIcon = require("@/assets/images/arrow-left.png");
 const WriteIcon = require("@/assets/images/write-icon.png");
 
-const AnimatedContainer = Animated.createAnimatedComponent(Container);
+const AnimatedContainer = Animated.createAnimatedComponent(ImageBackground);
 
 const ClubHeader: FC<Props> = ({
   onBack,
   onWrite,
+  onProfile,
   image,
+  profileImage,
   title,
   desc,
   style,
@@ -120,6 +121,9 @@ const ClubHeader: FC<Props> = ({
             <Image source={BackIcon} />
           </BackButtonContainer>
           <Title>{title}</Title>
+          <ProfileButton onPress={onProfile}>
+            <ProfileImage size={30} uri={profileImage} />
+          </ProfileButton>
         </TopContainer>
         <Description>{desc}</Description>
         <BottomContainer>
