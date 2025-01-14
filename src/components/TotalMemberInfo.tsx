@@ -1,6 +1,6 @@
-import styled from '@emotion/native';
-import React, {FC} from 'react';
-import CommonText from './CommonText';
+import styled from "@emotion/native";
+import React, { FC } from "react";
+import NanumGothicText from "./NanumGothicText";
 
 const Container = styled.View`
   flex-direction: row;
@@ -15,9 +15,8 @@ const SnowManIcon = styled.Image`
   margin-right: 8.3px;
 `;
 
-const MemberCount = styled(CommonText)`
+const MemberCount = styled(NanumGothicText)`
   color: #fff;
-  font-family: NanumGothic;
   font-size: 12px;
   font-style: normal;
   font-weight: 700;
@@ -28,9 +27,9 @@ type Props = {
   count: number;
 };
 
-const Icon = require('@/assets/images/snowman-icon.png');
+const Icon = require("@/assets/images/snowman-icon.png");
 
-const TotalMemberInfo: FC<Props> = ({count}) => {
+const TotalMemberInfo: FC<Props> = ({ count }) => {
   return (
     <Container>
       <SnowManIcon source={Icon} />

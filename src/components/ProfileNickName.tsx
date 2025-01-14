@@ -1,6 +1,6 @@
-import styled from '@emotion/native';
-import React, {FC} from 'react';
-import CommonText from './CommonText';
+import styled from "@emotion/native";
+import React, { FC } from "react";
+import NanumGothicText from "./NanumGothicText";
 
 const Container = styled.TouchableOpacity`
   flex-direction: row;
@@ -13,9 +13,8 @@ const ProfileIcon = styled.Image`
   margin-right: 8.56px;
 `;
 
-const NickName = styled(CommonText)`
+const NickName = styled(NanumGothicText)`
   color: #000;
-  font-family: NanumGothic;
   font-size: 13px;
   font-style: normal;
   font-weight: 400;
@@ -28,13 +27,13 @@ type Props = {
   nickname: string;
 };
 
-const EmptyProfileIcon = require('@/assets/images/empty-profile-icon.png');
+const EmptyProfileIcon = require("@/assets/images/empty-profile-icon.png");
 
-const ProfileNickName: FC<Props> = ({onPress, icon, nickname}) => {
+const ProfileNickName: FC<Props> = ({ onPress, icon, nickname }) => {
   return (
     <Container onPress={onPress}>
       {icon ? (
-        <ProfileIcon source={{uri: icon}} />
+        <ProfileIcon source={{ uri: icon }} />
       ) : (
         <ProfileIcon source={EmptyProfileIcon} />
       )}

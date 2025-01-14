@@ -21,8 +21,7 @@ const ItemBackgroundContainer = styled.ImageBackground`
 const ItemTitle = styled(CommonText)`
   color: #fff;
   text-align: center;
-  font-family: NanumGothic;
-  font-size: 18px;
+  font-size: 16px;
   font-style: normal;
   font-weight: 800;
   margin-bottom: 12px;
@@ -31,7 +30,6 @@ const ItemTitle = styled(CommonText)`
 const ItemDesc = styled(CommonText)`
   color: #fff;
   text-align: center;
-  font-family: NanumGothic;
   font-size: 13px;
   font-style: normal;
   font-weight: 400;
