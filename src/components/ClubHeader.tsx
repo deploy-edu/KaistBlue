@@ -79,16 +79,6 @@ const Description = styled(CommonText)`
   flex: 1px;
 `;
 
-const BottomBar = styled.View`
-  border-radius: 14px 14px 0px 0px;
-  background-color: #fff;
-  height: 28px;
-  position: absolute;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-`;
-
 type Props = {
   style?: ViewStyle;
   image: string;
@@ -140,7 +130,6 @@ const ClubHeader: FC<Props> = ({
           </WriteButtonContainer>
         </BottomContainer>
       </LinearGraidentContainer>
-      <BottomBar />
     </AnimatedContainer>
   );
 };

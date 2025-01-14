@@ -6,11 +6,12 @@ import CommonText from "./CommonText";
 import PublishingInfo from "./PublishingInfo";
 
 const Container = styled.Pressable`
-  padding-bottom: 20px;
+  background-color: #fff;
   border-bottom-width: 1px;
   border-bottom-color: #e9e9e9;
-  margin-bottom: 15px;
-  margin-horizontal: 16px;
+  padding-bottom: 20px;
+  padding-top: 11px;
+  padding-horizontal: 16px;
 `;
 
 const ItemTitle = styled(CommonText)`
