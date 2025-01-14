@@ -1,7 +1,7 @@
 import styled from "@emotion/native";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { FC } from "react";
-import { Image } from "react-native";
+import { Animated, Image, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import CommonText from "./CommonText";
 import TotalMemberInfo from "./TotalMemberInfo";
@@ -90,6 +90,7 @@ const BottomBar = styled.View`
 `;
 
 type Props = {
+  style?: ViewStyle;
   image: string;
   onBack?: () => void;
   onWrite?: () => void;
@@ -100,11 +101,20 @@ type Props = {
 const BackIcon = require("@/assets/images/arrow-left.png");
 const WriteIcon = require("@/assets/images/write-icon.png");
 
-const ClubHeader: FC<Props> = ({ onBack, onWrite, image, title, desc }) => {
+const AnimatedContainer = Animated.createAnimatedComponent(Container);
+
+const ClubHeader: FC<Props> = ({
+  onBack,
+  onWrite,
+  image,
+  title,
+  desc,
+  style,
+}) => {
   const { top } = useSafeAreaInsets();
 
   return (
-    <Container source={{ uri: image }}>
+    <AnimatedContainer source={{ uri: image }} style={style}>
       <LinearGraidentContainer
         style={{ paddingTop: top }}
         colors={[
@@ -131,7 +141,7 @@ const ClubHeader: FC<Props> = ({ onBack, onWrite, image, title, desc }) => {
         </BottomContainer>
       </LinearGraidentContainer>
       <BottomBar />
-    </Container>
+    </AnimatedContainer>
   );
 };
 

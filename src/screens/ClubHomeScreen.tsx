@@ -6,8 +6,8 @@ import { useArticleStore } from "@/stores/useArticleStore";
 import { useCommunityStore } from "@/stores/useCommunityStore";
 import styled from "@emotion/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { FC, useCallback, useEffect, useState } from "react";
-import { FlatList } from "react-native";
+import React, { FC, useCallback, useEffect, useRef, useState } from "react";
+import { Animated } from "react-native";
 
 const Container = styled.View`
   flex: 1;
@@ -18,6 +18,7 @@ type Props = NativeStackScreenProps<RootStackParamList, "ClubHome">;
 
 const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const animRef = useRef(new Animated.Value(0));
   const { communityId } = route.params;
   const community = useCommunityStore(
     (state) => state.communitiesById[communityId]
@@ -61,7 +62,7 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
 
   return (
     <Container>
-      <FlatList
+      <Animated.FlatList
         data={articleIds}
         ListHeaderComponent={
           <ClubHeader
@@ -70,6 +71,16 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
             desc={`상상이 현실이 되는 그 순간\n창작과 문예의 세계에 빠져보세요.`}
             onBack={onBack}
             onWrite={onWrite}
+            style={{
+              transform: [
+                {
+                  scale: animRef.current.interpolate({
+                    inputRange: [-100, 0, 100],
+                    outputRange: [2, 1, 1],
+                  }),
+                },
+              ],
+            }}
           />
         }
         renderItem={({ item }) => (
@@ -78,6 +89,10 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
         keyExtractor={(item) => item.toString()}
         refreshing={isRefreshing}
         onRefresh={onRefresh}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: animRef.current } } }],
+          { useNativeDriver: true }
+        )}
       />
     </Container>
   );
