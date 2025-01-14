@@ -1,9 +1,11 @@
 import ClubListItem from "@/components/ClubListItem";
-import axiosClient from "@/libs/axiosClient";
+import fetchCommunities from "@/libs/apis/fetchCommunities";
+import fetchUserCommunities from "@/libs/apis/fetchUserCommunities";
 import { RootStackParamList } from "@/navigators/RootStackNavigator";
+import { CommunityData, useCommunityStore } from "@/stores/useCommunityStore";
 import styled from "@emotion/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { FC, useCallback, useEffect, useState } from "react";
+import React, { FC, useCallback, useEffect } from "react";
 import { FlatList } from "react-native";
 
 const Container = styled.SafeAreaView`
@@ -24,18 +26,14 @@ type Data = {
 
 type Props = NativeStackScreenProps<RootStackParamList, "ClubList">;
 const ClubListScreen: FC<Props> = ({ navigation }) => {
-  const [clubList, setClubList] = useState<Data[]>([]);
+  const communityIds = useCommunityStore((state) => state.communityIds);
 
   const onPress = useCallback(
     (id: number) => async () => {
       try {
-        const response = await axiosClient.post("community/list/user", {});
+        const joined = useCommunityStore.getState().communitiesById[id].joined;
 
-        const filtered = response.data.data.filter(
-          (item: any) => item.communityId === id && !!item.userId
-        );
-
-        if (filtered.length === 0) {
+        if (!joined) {
           navigation.navigate("AddProfile", {
             communityId: id,
           });
@@ -51,26 +49,38 @@ const ClubListScreen: FC<Props> = ({ navigation }) => {
 
   useEffect(() => {
     async function init() {
-      const response = await axiosClient.get("community/list");
-      setClubList(response.data.data);
+      try {
+        const communities = await fetchCommunities();
+        const userCommunities = await fetchUserCommunities();
+
+        if (communities.data.length > 0) {
+          const data = communities.data.map<CommunityData>((community) => {
+            const found = userCommunities.data.find(
+              (item: any) => item.communityId === community.id
+            );
+            return {
+              ...community,
+              joined: !!found,
+            };
+          });
+          useCommunityStore.getState().setCommunities(data);
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }
     init();
   }, []);
 
   return (
     <Container>
-      {clubList.length > 0 && (
+      {communityIds.length > 0 && (
         <FlatList
-          data={clubList}
+          data={communityIds}
           renderItem={({ item }) => (
-            <ClubListItem
-              title={item.title}
-              desc={item.summary}
-              onPress={onPress(item.id)}
-              imageStr={`${item.type}${item.image}`}
-            />
+            <ClubListItem id={item} onPress={onPress(item)} />
           )}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.toString()}
         />
       )}
     </Container>

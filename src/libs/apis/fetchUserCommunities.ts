@@ -17,7 +17,7 @@ export type ResponseParams = {
 
 const fetchUserCommunities = async (): Promise<ResponseParams> => {
   try {
-    const response = await axiosClient.get<
+    const response = await axiosClient.post<
       ResponseParams,
       AxiosResponse<ResponseParams>
     >("community/list/user");

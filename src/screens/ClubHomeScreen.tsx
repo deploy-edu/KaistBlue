@@ -2,6 +2,7 @@ import ClubHeader from "@/components/ClubHeader";
 import CommonText from "@/components/CommonText";
 import PublishingInfo from "@/components/PublishingInfo";
 import { RootStackParamList } from "@/navigators/RootStackNavigator";
+import { useCommunityStore } from "@/stores/useCommunityStore";
 import styled from "@emotion/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import dayjs from "dayjs";
@@ -93,6 +94,10 @@ type Props = NativeStackScreenProps<RootStackParamList, "ClubHome">;
 
 const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
   const { communityId } = route.params;
+  const community = useCommunityStore(
+    (state) => state.communitiesById[communityId]
+  );
+
   const onPress = useCallback(
     (id: number) => () => {
       navigation.navigate("ViewArticle", { communityId, id });
@@ -114,6 +119,7 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
         data={DATA}
         ListHeaderComponent={
           <ClubHeader
+            image={`${community.type}${community.image}`}
             title="창작과 문예"
             desc={`상상이 현실이 되는 그 순간\n창작과 문예의 세계에 빠져보세요.`}
             onBack={onBack}
