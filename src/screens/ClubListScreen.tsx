@@ -9,42 +9,31 @@ import React, { FC, useCallback, useEffect } from "react";
 import { FlatList } from "react-native";
 
 const Container = styled.SafeAreaView`
+  border-width: 1px;
   flex: 1;
-  padding-top: 20px;
 `;
 
-type Data = {
-  id: number;
-  title: string;
-  summary: string;
-  status?: string;
-  createdAt: Date;
-  image: string;
-  imageStr?: string;
-  type: string;
-};
-
 type Props = NativeStackScreenProps<RootStackParamList, "ClubList">;
+
 const ClubListScreen: FC<Props> = ({ navigation }) => {
   const communityIds = useCommunityStore((state) => state.communityIds);
 
   const onPress = useCallback(
-    (id: number) => async () => {
-      try {
-        const joined = useCommunityStore.getState().communitiesById[id].joined;
+    (id: number) => () => {
+      const joined = useCommunityStore.getState().communitiesById[id].joined;
+      console.log("joined", joined);
 
-        if (!joined) {
-          navigation.navigate("AddProfile", {
-            communityId: id,
-          });
-        } else {
-          navigation.navigate("ClubHome", { communityId: id });
-        }
-      } catch (e) {
-        console.error(e);
+      if (!joined) {
+        navigation.navigate("AddProfile", {
+          communityId: id,
+        });
+      } else {
+        navigation.navigate("ClubHome", {
+          communityId: id,
+        });
       }
     },
-    [navigation]
+    []
   );
 
   useEffect(() => {
@@ -52,21 +41,19 @@ const ClubListScreen: FC<Props> = ({ navigation }) => {
       try {
         const communities = await fetchCommunities();
         const userCommunities = await fetchUserCommunities();
-
         if (communities.data.length > 0) {
           const data = communities.data.map<CommunityData>((community) => {
-            const found = userCommunities.data.find(
-              (item: any) => item.communityId === community.id
+            const joined = userCommunities.data.find(
+              (userCommunity) => userCommunity.communityId === community.id
             );
-            return {
-              ...community,
-              joined: !!found,
-            };
+            return { ...community, joined: !!joined };
           });
           useCommunityStore.getState().setCommunities(data);
         }
+
+        // useCommunityStore.getState().setCommunities(communities);
       } catch (e) {
-        console.error(e);
+        console.log(e);
       }
     }
     init();
@@ -74,15 +61,14 @@ const ClubListScreen: FC<Props> = ({ navigation }) => {
 
   return (
     <Container>
-      {communityIds.length > 0 && (
-        <FlatList
-          data={communityIds}
-          renderItem={({ item }) => (
-            <ClubListItem id={item} onPress={onPress(item)} />
-          )}
-          keyExtractor={(item) => item.toString()}
-        />
-      )}
+      <FlatList
+        data={communityIds}
+        keyExtractor={(item) => item.toString()}
+        renderItem={({ item }) => (
+          <ClubListItem id={item} onPress={onPress(item)} />
+        )}
+        contentContainerStyle={{ gap: 29, paddingHorizontal: 16 }}
+      />
     </Container>
   );
 };

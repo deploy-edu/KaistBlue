@@ -1,26 +1,29 @@
 import CancelButton from "@/components/CancelButton";
-import Header from "@/components/Header";
-import SignUpInput from "@/components/SignUpInput";
 import SubmitButton from "@/components/SubmitButton";
 import signup from "@/libs/apis/signup";
-import axiosClient from "@/libs/axiosClient";
 import { RootStackParamList } from "@/navigators/RootStackNavigator";
 import styled from "@emotion/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { FC, useCallback, useState } from "react";
+import { FC, useCallback, useState } from "react";
 import { Alert } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Logo from "../assets/svgs/logo.svg";
+import SignInInput from "../components/SignInInput";
 
-const Container = styled.View`
+const Container = styled.ImageBackground`
   flex: 1;
-  background-color: #f2f4fb;
+  justify-content: center;
+  padding-horizontal: 40px;
 `;
 
-const InnerContainer = styled.View`
-  flex: 1;
-  margin-horizontal: 22px;
-  align-items: center;
+const LogoContainer = styled.View`
+  align-self: center;
   justify-content: center;
+  margin-bottom: 131px;
+`;
+
+const InputContainer = styled.View`
+  gap: 19px;
+  margin-bottom: 50px;
 `;
 
 const ButtonContainer = styled.View`
@@ -31,14 +34,40 @@ const ButtonContainer = styled.View`
   padding-horizontal: 16px;
 `;
 
+const BACKGROUND_IMAGE = require("../assets/images/signin_background.png");
+
 type Props = NativeStackScreenProps<RootStackParamList, "SignUp">;
-const SignUpScreen: FC<Props> = ({ navigation, route }) => {
-  const { bottom } = useSafeAreaInsets();
+
+const SignUpScreen: FC<Props> = ({ navigation }) => {
   const [id, setId] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordRe, setPasswordRe] = useState("");
+
+  const onSignUp = useCallback(async () => {
+    if (password !== passwordRe) {
+      Alert.alert("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    try {
+      const response = await signup({
+        userId: id,
+        userName: name,
+        upassword: password,
+        email,
+      });
+      navigation.goBack();
+      console.log(response);
+    } catch (e) {
+      console.log(e);
+    }
+  }, [id, name, email, password, passwordRe]);
+
+  const onCancel = useCallback(() => {
+    navigation.goBack();
+  }, []);
 
   const onChangeId = useCallback((text: string) => {
     setId(text);
@@ -56,74 +85,45 @@ const SignUpScreen: FC<Props> = ({ navigation, route }) => {
     setPassword(text);
   }, []);
 
-  const onChangePasswordre = useCallback((text: string) => {
+  const onChangePasswordRe = useCallback((text: string) => {
     setPasswordRe(text);
   }, []);
 
-  const onCancel = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
-  const onSubmit = useCallback(async () => {
-    if (password !== passwordRe) {
-      Alert.alert("비밀번호가 일치하지 않습니다.");
-      return;
-    }
-
-    // todo: 네트워킹
-    try {
-      const response = await signup({
-        userId: id,
-        userName: name,
-        upassword: password,
-        email: email,
-      });
-      navigation.goBack();
-    } catch (e) {
-      console.log(e);
-    }
-  }, [email, id, name, navigation, password, passwordRe]);
-
   return (
-    <Container style={{ paddingBottom: bottom }}>
-      <Header title={"회원가입"} />
-      <InnerContainer>
-        <SignUpInput
+    <Container source={BACKGROUND_IMAGE}>
+      <LogoContainer>
+        <Logo />
+      </LogoContainer>
+      <InputContainer>
+        <SignInInput
           placeholder="아이디를 입력해주세요"
-          style={{ marginBottom: 19 }}
-          onChangeText={onChangeId}
           value={id}
+          onChangeText={onChangeId}
         />
-        <SignUpInput
+        <SignInInput
           placeholder="이름을 입력해주세요"
-          style={{ marginBottom: 19 }}
-          onChangeText={onChangeName}
           value={name}
+          onChangeText={onChangeName}
         />
-        <SignUpInput
-          placeholder="이메일을 입력해주세요."
-          style={{ marginBottom: 19 }}
-          onChangeText={onChangeEmail}
+        <SignInInput
+          placeholder="이메일을 입력해주세요"
           value={email}
+          onChangeText={onChangeEmail}
         />
-        <SignUpInput
-          placeholder="비밀번호를 입력해주세요."
-          style={{ marginBottom: 19 }}
-          onChangeText={onChangePassword}
-          secureTextEntry={true}
+        <SignInInput
+          placeholder="비밀번호를 입력해주세요"
           value={password}
+          onChangeText={onChangePassword}
         />
-        <SignUpInput
-          placeholder="비밀번호를 재입력해주세요."
-          style={{ marginBottom: 19 }}
-          onChangeText={onChangePasswordre}
-          secureTextEntry={true}
+        <SignInInput
+          placeholder="비밀번호를 재입력해주세요"
           value={passwordRe}
+          onChangeText={onChangePasswordRe}
         />
-      </InnerContainer>
+      </InputContainer>
       <ButtonContainer>
         <CancelButton onPress={onCancel} />
-        <SubmitButton title={"가입하기"} onPress={onSubmit} />
+        <SubmitButton title={"가입하기"} onPress={onSignUp} />
       </ButtonContainer>
     </Container>
   );
