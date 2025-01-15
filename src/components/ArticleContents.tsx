@@ -1,7 +1,7 @@
-import styled from '@emotion/native';
-import React, {FC} from 'react';
-import CommonText from './CommonText';
-import PublishingInfo from './PublishingInfo';
+import styled from "@emotion/native";
+import React, { FC } from "react";
+import CommonText from "./CommonText";
+import PublishingInfo from "./PublishingInfo";
 
 const Container = styled.View`
   padding-vertical: 26px;
@@ -32,6 +32,7 @@ type Props = {
   nickname: string;
   publishedAt: string;
   iconUrl: string;
+  userId: number;
 };
 
 const ArticleContent: FC<Props> = ({
@@ -40,14 +41,15 @@ const ArticleContent: FC<Props> = ({
   nickname,
   iconUrl,
   publishedAt,
+  userId,
 }) => {
   return (
     <Container>
       <PublishingInfo
         iconUrl={iconUrl}
-        nickname={nickname}
+        nickname={nickname || "닉네임"}
         publishedAt={publishedAt}
-        id=""
+        id={userId}
       />
       <Title>{title}</Title>
       <Contents>{contents.trim()}</Contents>

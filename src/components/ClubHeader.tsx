@@ -4,8 +4,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import React, { FC } from "react";
 import { Animated, Image, ImageBackground, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import MemberCount from "./MemberCount";
 import NanumGothicText from "./NanumGothicText";
-import TotalMemberInfo from "./TotalMemberInfo";
 
 type Props = {
   style?: ViewStyle;
@@ -127,7 +127,7 @@ const ClubHeader: FC<Props> = ({
         </TopContainer>
         <Description>{desc}</Description>
         <BottomContainer>
-          <TotalMemberInfo count={100} />
+          <MemberCount count={100} />
           <WriteButtonContainer onPress={onWrite}>
             <WriteButtonIcon source={WriteIcon} />
             <WriteButtonTitle>글쓰기</WriteButtonTitle>

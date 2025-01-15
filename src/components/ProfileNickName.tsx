@@ -11,6 +11,7 @@ const ProfileIcon = styled.Image`
   width: 21px;
   height: 21px;
   margin-right: 8.56px;
+  border-radius: 10.5px;
 `;
 
 const NickName = styled(NanumGothicText)`

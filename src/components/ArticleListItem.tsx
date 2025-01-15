@@ -41,10 +41,14 @@ const ArticleListItem: FC<Props> = ({ id, onPress }) => {
   return (
     <Container onPress={onPress}>
       <PublishingInfo
-        nickname={"글쓴이"}
+        nickname={article.nickName || "닉네임"}
         publishedAt={dayjs(article.createdAt).fromNow()}
-        iconUrl=""
-        id=""
+        iconUrl={
+          article.profileType &&
+          article.profileImage &&
+          `${article.profileType}${article.profileImage}`
+        }
+        id={article.userId}
       />
       <ItemTitle>{article.title}</ItemTitle>
       <ItemContent>{article.content}</ItemContent>

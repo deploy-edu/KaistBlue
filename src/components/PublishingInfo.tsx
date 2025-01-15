@@ -1,10 +1,10 @@
-import {RootStackParamList} from '@/navigators/RootStackNavigator';
-import styled from '@emotion/native';
-import {useNavigation} from '@react-navigation/native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import React, {FC, useCallback} from 'react';
-import CommonText from './CommonText';
-import ProfileNickName from './ProfileNickName';
+import { RootStackParamList } from "@/navigators/RootStackNavigator";
+import styled from "@emotion/native";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import React, { FC, useCallback } from "react";
+import CommonText from "./CommonText";
+import ProfileNickName from "./ProfileNickName";
 
 const Container = styled.View`
   flex-direction: row;
@@ -22,16 +22,17 @@ const PublishingDate = styled(CommonText)`
 `;
 
 type Props = {
-  id: string;
+  id: number;
   nickname: string;
   iconUrl: string;
   publishedAt: string;
 };
 
-const PublishingInfo: FC<Props> = ({id, nickname, iconUrl, publishedAt}) => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+const PublishingInfo: FC<Props> = ({ id, nickname, iconUrl, publishedAt }) => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const onPress = useCallback(() => {
-    navigation.navigate('ProfileAdd', {id});
+    navigation.navigate("AddProfile", { id });
   }, [navigation, id]);
 
   return (
