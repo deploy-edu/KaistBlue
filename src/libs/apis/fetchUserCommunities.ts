@@ -3,10 +3,13 @@ import axiosClient from "../axiosClient";
 
 export type UserCommunity = {
   summary: string;
+  sortNo?: number;
   image: string;
+  nickName?: string;
   communityId: number;
   title: string;
   type: string;
+  userId?: number;
 };
 
 export type ResponseParams = {

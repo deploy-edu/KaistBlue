@@ -1,11 +1,9 @@
-import { Community } from "@/libs/apis/fetchCommunities";
+import { UserCommunity } from "@/libs/apis/fetchUserCommunities";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-export type CommunityData = Community & {
-  joined: boolean;
-};
+export type CommunityData = UserCommunity;
 
 type CommunityStoreState = {
   communitiesById: Record<number, CommunityData>; // ID 기반 저장소
@@ -14,45 +12,35 @@ type CommunityStoreState = {
 
 type CommunityStoreActions = {
   setCommunities: (data: CommunityData[]) => void;
-  toggleJoinStatus: (id: number) => void; // 예시로 추가된 액션
+  updateCommunity: (data: CommunityData) => void;
 };
 
 export const useCommunityStore = create(
   persist<CommunityStoreState & CommunityStoreActions>(
-    (set) => ({
+    (set, get) => ({
       communitiesById: {},
       communityIds: [],
       setCommunities: (data) => {
         const communitiesById = data.reduce<Record<number, CommunityData>>(
           (acc, community) => {
-            acc[community.id] = community; // ID를 키로 사용
+            acc[community.communityId] = community; // ID를 키로 사용
             return acc;
           },
           {}
         );
-        const communityIds = data.map((community) => community.id);
+        const communityIds = data.map((community) => community.communityId);
 
         set({
           communitiesById,
           communityIds,
         });
       },
-      toggleJoinStatus: (id) => {
-        set((state) => {
-          const community = state.communitiesById[id];
-          if (!community) return state;
-
-          return {
-            ...state,
-            communitiesById: {
-              ...state.communitiesById,
-              [id]: {
-                ...community,
-                joined: !community.joined,
-                joinedAt: community.joined ? undefined : new Date(),
-              },
-            },
-          };
+      updateCommunity: (data) => {
+        set({
+          communitiesById: {
+            ...get().communitiesById,
+            [data.communityId]: data,
+          },
         });
       },
     }),

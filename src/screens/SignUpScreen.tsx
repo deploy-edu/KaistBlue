@@ -59,7 +59,6 @@ const SignUpScreen: FC<Props> = ({ navigation }) => {
         email,
       });
       navigation.goBack();
-      console.log(response);
     } catch (e) {
       console.log(e);
     }

@@ -2,8 +2,9 @@ import CancelButton from "@/components/CancelButton";
 import Header from "@/components/Header";
 import NicknameInput from "@/components/NicknameInput";
 import SubmitButton from "@/components/SubmitButton";
-import axiosClient from "@/libs/axiosClient";
+import saveProfile from "@/libs/apis/saveProfile";
 import { RootStackParamList } from "@/navigators/RootStackNavigator";
+import { useCommunityStore } from "@/stores/useCommunityStore";
 import styled from "@emotion/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as ImagePicker from "expo-image-picker";
@@ -49,6 +50,9 @@ const AddProfileScreen: FC<Props> = ({ navigation, route }) => {
   const { id, communityId } = route.params;
   const [nickName, setNickname] = useState("");
   const [profileImage, setProfileImage] = useState("");
+  const community = useCommunityStore(
+    (state) => state.communitiesById[communityId]
+  );
 
   const onChangeNickName = useCallback((text: string) => {
     setNickname(text);
@@ -73,15 +77,26 @@ const AddProfileScreen: FC<Props> = ({ navigation, route }) => {
   }, [navigation]);
 
   const onSubmit = useCallback(async () => {
-    const response = await axiosClient.post("community/user/add", {
-      communityId,
-      nickName,
-      sortNo: "0",
-      imageStr: profileImage,
-    });
-    console.log(response);
-    navigation.goBack();
-  }, [communityId, navigation, nickName, profileImage]);
+    try {
+      const response = await saveProfile({
+        communityId: communityId?.toString(),
+        nickName,
+        sortNo: "0",
+        imageStr: profileImage,
+      });
+
+      useCommunityStore.getState().updateCommunity({
+        ...community,
+        userId: response.data.userId,
+        nickName: response.data.nickName,
+        sortNo: response.data.sortNo,
+      });
+
+      navigation.goBack();
+    } catch (e) {
+      console.error(e);
+    }
+  }, [communityId, navigation, nickName, profileImage, community]);
 
   return (
     <Container style={{ paddingBottom: bottom }}>

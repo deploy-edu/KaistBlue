@@ -24,7 +24,7 @@ export type RootStackParamList = {
     communityId: number;
   };
   AddProfile: {
-    communityId?: number;
+    communityId: number;
     id?: number;
   };
 };

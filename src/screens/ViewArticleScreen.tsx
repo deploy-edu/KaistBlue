@@ -1,7 +1,9 @@
+import TrashIcon from "@/assets/svgs/trash-icon.svg";
 import ArticleContents from "@/components/ArticleContents";
 import CommentListItem from "@/components/CommentListItem";
 import CommonText from "@/components/CommonText";
 import Header from "@/components/Header";
+import NanumGothicText from "@/components/NanumGothicText";
 import fetchComments from "@/libs/apis/fetchComments";
 import saveComment from "@/libs/apis/saveComment";
 import { RootStackParamList } from "@/navigators/RootStackNavigator";
@@ -60,6 +62,20 @@ const CommentInput = styled.TextInput`
   line-height: 14.82px;
 `;
 
+const DeleteButton = styled.Pressable`
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+`;
+
+const DeleteText = styled(NanumGothicText)`
+  color: #606060;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 400;
+`;
+
 type Props = NativeStackScreenProps<RootStackParamList, "ViewArticle">;
 const ViewArticleScreen: FC<Props> = ({ route }) => {
   const { bottom } = useSafeAreaInsets();
@@ -90,6 +106,13 @@ const ViewArticleScreen: FC<Props> = ({ route }) => {
     }
   }, [comment, id, communityId]);
 
+  const onDelete = useCallback(async () => {
+    try {
+    } catch (e) {
+      console.error(e);
+    }
+  }, [id]);
+
   useEffect(() => {
     async function init() {
       try {
@@ -105,7 +128,15 @@ const ViewArticleScreen: FC<Props> = ({ route }) => {
 
   return (
     <Container style={{ paddingBottom: bottom }}>
-      <Header title="게시글" />
+      <Header
+        title="게시글"
+        RightComponent={
+          <DeleteButton onPress={onDelete}>
+            <TrashIcon />
+            <DeleteText>삭제</DeleteText>
+          </DeleteButton>
+        }
+      />
       <InnerContainer>
         <FlatList
           data={commentIds}
@@ -127,7 +158,6 @@ const ViewArticleScreen: FC<Props> = ({ route }) => {
           }
           renderItem={({ item }) => <CommentListItem id={item} />}
           keyExtractor={(item) => {
-            console.log("item", item);
             return item.toString();
           }}
         />

@@ -24,6 +24,19 @@ const BottomBar = styled.View`
   right: 0px;
 `;
 
+const EmptyContainer = styled.View`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+`;
+
+const EmptyText = styled.Text`
+  font-size: 16px;
+  color: #000;
+  margin-top: 20px;
+`;
+
 type Props = NativeStackScreenProps<RootStackParamList, "ClubHome">;
 
 const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
@@ -61,8 +74,8 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
   }, [communityId]);
 
   const onProfile = useCallback(() => {
-    navigation.navigate("AddProfile", { communityId });
-  }, [communityId, navigation]);
+    navigation.navigate("AddProfile", { communityId, id: community.userId });
+  }, [communityId, community.userId, navigation]);
 
   useEffect(() => {
     async function init() {
@@ -78,6 +91,14 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
     <Container>
       <Animated.FlatList
         data={articleIds}
+        style={{
+          flex: 1,
+        }}
+        ListEmptyComponent={
+          <EmptyContainer>
+            <EmptyText>게시글이 없습니다.</EmptyText>
+          </EmptyContainer>
+        }
         ListHeaderComponent={
           <>
             <ClubHeader

@@ -1,8 +1,7 @@
 import ClubListItem from "@/components/ClubListItem";
-import fetchCommunities from "@/libs/apis/fetchCommunities";
 import fetchUserCommunities from "@/libs/apis/fetchUserCommunities";
 import { RootStackParamList } from "@/navigators/RootStackNavigator";
-import { CommunityData, useCommunityStore } from "@/stores/useCommunityStore";
+import { useCommunityStore } from "@/stores/useCommunityStore";
 import styled from "@emotion/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { FC, useCallback, useEffect } from "react";
@@ -20,10 +19,9 @@ const ClubListScreen: FC<Props> = ({ navigation }) => {
 
   const onPress = useCallback(
     (id: number) => () => {
-      const joined = useCommunityStore.getState().communitiesById[id].joined;
-      console.log("joined", joined);
+      const userId = useCommunityStore.getState().communitiesById[id].userId;
 
-      if (!joined) {
+      if (!userId) {
         navigation.navigate("AddProfile", {
           communityId: id,
         });
@@ -39,19 +37,8 @@ const ClubListScreen: FC<Props> = ({ navigation }) => {
   useEffect(() => {
     async function init() {
       try {
-        const communities = await fetchCommunities();
         const userCommunities = await fetchUserCommunities();
-        if (communities.data.length > 0) {
-          const data = communities.data.map<CommunityData>((community) => {
-            const joined = userCommunities.data.find(
-              (userCommunity) => userCommunity.communityId === community.id
-            );
-            return { ...community, joined: !!joined };
-          });
-          useCommunityStore.getState().setCommunities(data);
-        }
-
-        // useCommunityStore.getState().setCommunities(communities);
+        useCommunityStore.getState().setCommunities(userCommunities.data);
       } catch (e) {
         console.log(e);
       }

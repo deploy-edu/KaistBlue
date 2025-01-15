@@ -68,10 +68,19 @@ const LinearGradientContainer = styled(LinearGradient)`
 const ClubListItem: FC<Props> = ({ style, id, onPress }) => {
   const community = useCommunityStore((state) => state.communitiesById[id]);
 
+  if (!community) {
+    return null;
+  }
+
   return (
     <Container style={style} onPress={onPress}>
       <BackgroundContainer
-        source={{ uri: `${community.type}${community.image}` }}
+        source={{
+          uri:
+            community.type &&
+            community.image &&
+            `${community.type}${community.image}`,
+        }}
         imageStyle={{
           borderRadius: 15.5,
         }}
