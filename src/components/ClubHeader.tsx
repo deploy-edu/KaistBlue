@@ -17,6 +17,7 @@ type Props = {
   title: string;
   desc: string;
   memberCount?: number;
+  scrollY?: Animated.Value;
 };
 
 const TopContainer = styled.View`
@@ -91,7 +92,33 @@ const ProfileButton = styled.Pressable`
 const BackIcon = require("@/assets/images/arrow-left.png");
 const WriteIcon = require("@/assets/images/write-icon.png");
 
-const AnimatedContainer = Animated.createAnimatedComponent(ImageBackground);
+const HeaderWrapper = styled.View`
+  height: 250px;
+  overflow: hidden;
+`;
+
+const AnimatedImageBackground =
+  Animated.createAnimatedComponent(ImageBackground);
+
+const AnimatedView = Animated.View;
+
+const ContentContainer = styled.View`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+`;
+
+const BottomBar = styled.View`
+  border-radius: 14px 14px 0px 0px;
+  background-color: #fff;
+  height: 17px;
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+`;
 
 const ClubHeader: FC<Props> = ({
   onBack,
@@ -103,40 +130,77 @@ const ClubHeader: FC<Props> = ({
   desc,
   style,
   memberCount = 0,
+  scrollY,
 }) => {
   const { top } = useSafeAreaInsets();
 
+  // pull to refresh 시 배경 이미지 scale 애니메이션
+  const headerScale = scrollY
+    ? scrollY.interpolate({
+        inputRange: [-250, 0],
+        outputRange: [2.0, 1.0],
+        extrapolate: "clamp",
+      })
+    : 1;
+
+  const animatedStyle = scrollY
+    ? {
+        transform: [{ scale: headerScale }],
+      }
+    : undefined;
+
   return (
-    <AnimatedContainer source={{ uri: image }} style={style}>
-      <LinearGraidentContainer
-        style={{ paddingTop: top }}
-        colors={[
-          "rgba(0, 0, 0, 0.70)",
-          "rgba(0, 0, 0, 0.64)",
-          "rgba(0, 0, 0, 0.00)",
+    <HeaderWrapper style={style}>
+      <AnimatedView
+        style={[
+          {
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+          },
+          animatedStyle,
         ]}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
       >
-        <TopContainer>
-          <BackButtonContainer onPress={onBack}>
-            <Image source={BackIcon} />
-          </BackButtonContainer>
-          <Title>{title}</Title>
-          <ProfileButton onPress={onProfile}>
-            <ProfileImage size={30} uri={profileImage} />
-          </ProfileButton>
-        </TopContainer>
-        <Description>{desc}</Description>
-        <BottomContainer>
-          <MemberCount count={memberCount} />
-          <WriteButtonContainer onPress={onWrite}>
-            <WriteButtonIcon source={WriteIcon} />
-            <WriteButtonTitle>글쓰기</WriteButtonTitle>
-          </WriteButtonContainer>
-        </BottomContainer>
-      </LinearGraidentContainer>
-    </AnimatedContainer>
+        <AnimatedImageBackground
+          source={{ uri: image }}
+          style={{ width: "100%", height: "100%" }}
+          resizeMode="cover"
+        />
+      </AnimatedView>
+      <ContentContainer>
+        <LinearGraidentContainer
+          style={{ paddingTop: top }}
+          colors={[
+            "rgba(0, 0, 0, 0.70)",
+            "rgba(0, 0, 0, 0.64)",
+            "rgba(0, 0, 0, 0.00)",
+          ]}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+        >
+          <TopContainer>
+            <BackButtonContainer onPress={onBack}>
+              <Image source={BackIcon} />
+            </BackButtonContainer>
+            <Title>{title}</Title>
+            <ProfileButton onPress={onProfile}>
+              <ProfileImage size={30} uri={profileImage} />
+            </ProfileButton>
+          </TopContainer>
+          <Description>{desc}</Description>
+          <BottomContainer>
+            <MemberCount count={memberCount} />
+            <WriteButtonContainer onPress={onWrite}>
+              <WriteButtonIcon source={WriteIcon} />
+              <WriteButtonTitle>글쓰기</WriteButtonTitle>
+            </WriteButtonContainer>
+          </BottomContainer>
+        </LinearGraidentContainer>
+      </ContentContainer>
+      <BottomBar />
+    </HeaderWrapper>
   );
 };
 

@@ -21,14 +21,14 @@ const Container = styled.View`
   background-color: #fff;
 `;
 
-const BottomBar = styled.View`
-  border-radius: 14px 14px 0px 0px;
-  background-color: #fff;
-  height: 17px;
+const HeaderContainer = styled.View`
   position: absolute;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  height: 250px;
+  overflow: hidden;
 `;
 
 const EmptyContainer = styled.View`
@@ -48,7 +48,7 @@ type Props = NativeStackScreenProps<RootStackParamList, "ClubHome">;
 
 const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const animRef = useRef(new Animated.Value(0));
+  const scrollY = useRef(new Animated.Value(0)).current;
   const { communityId } = route.params;
   const community = useCommunityStore(
     (state) => state.communitiesById[communityId]
@@ -116,40 +116,32 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
 
   return (
     <Container>
+      <HeaderContainer>
+        <ClubHeader
+          image={`${community.type}${community.image}`}
+          profileImage={profileImageUri}
+          title="창작과 문예"
+          desc={`상상이 현실이 되는 그 순간\n창작과 문예의 세계에 빠져보세요.`}
+          onBack={onBack}
+          onWrite={onWrite}
+          onProfile={onProfile}
+          memberCount={community.memberCount || 0}
+          scrollY={scrollY}
+        />
+      </HeaderContainer>
       <Animated.FlatList
         data={articleIds}
         style={{
           flex: 1,
         }}
+        contentContainerStyle={{
+          paddingTop: 250,
+          paddingBottom: 17,
+        }}
         ListEmptyComponent={
           <EmptyContainer>
             <EmptyText>게시글이 없습니다.</EmptyText>
           </EmptyContainer>
-        }
-        ListHeaderComponent={
-          <>
-            <ClubHeader
-              image={`${community.type}${community.image}`}
-              profileImage={profileImageUri}
-              title="창작과 문예"
-              desc={`상상이 현실이 되는 그 순간\n창작과 문예의 세계에 빠져보세요.`}
-              onBack={onBack}
-              onWrite={onWrite}
-              onProfile={onProfile}
-              memberCount={community.memberCount || 0}
-              style={{
-                transform: [
-                  {
-                    scale: animRef.current.interpolate({
-                      inputRange: [-100, 0, 100],
-                      outputRange: [2, 1, 1],
-                    }),
-                  },
-                ],
-              }}
-            />
-            <BottomBar />
-          </>
         }
         renderItem={({ item }) => (
           <ArticleListItem id={item} onPress={onPress(item)} />
@@ -158,9 +150,10 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
         refreshing={isRefreshing}
         onRefresh={onRefresh}
         onScroll={Animated.event(
-          [{ nativeEvent: { contentOffset: { y: animRef.current } } }],
-          { useNativeDriver: true }
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: false }
         )}
+        scrollEventThrottle={16}
       />
     </Container>
   );
