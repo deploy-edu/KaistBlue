@@ -6,7 +6,14 @@ import { useArticleStore } from "@/stores/useArticleStore";
 import { useCommunityStore } from "@/stores/useCommunityStore";
 import styled from "@emotion/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { FC, useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  FC,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Animated } from "react-native";
 
 const Container = styled.View`
@@ -48,6 +55,26 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
   );
 
   const articleIds = useArticleStore((state) => state.articleIds);
+
+  // 프로필 이미지 조합
+  const profileImageUri = useMemo(() => {
+    if (!community?.profileImage) {
+      return undefined;
+    }
+
+    // 이미 data URI 형태인 경우
+    if (community.profileImage.startsWith("data:")) {
+      return community.profileImage;
+    }
+
+    // profileImageType과 profileImage를 조합
+    if (community.profileImageType) {
+      return `${community.profileImageType}${community.profileImage}`;
+    }
+
+    // type이 없으면 기본값으로 image/png 사용
+    return `data:image/png;base64,${community.profileImage}`;
+  }, [community?.profileImage, community?.profileImageType]);
 
   const onPress = useCallback(
     (id: number) => () => {
@@ -103,7 +130,7 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
           <>
             <ClubHeader
               image={`${community.type}${community.image}`}
-              profileImage={undefined}
+              profileImage={profileImageUri}
               title="창작과 문예"
               desc={`상상이 현실이 되는 그 순간\n창작과 문예의 세계에 빠져보세요.`}
               onBack={onBack}
