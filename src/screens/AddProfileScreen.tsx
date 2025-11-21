@@ -8,7 +8,7 @@ import { useCommunityStore } from "@/stores/useCommunityStore";
 import styled from "@emotion/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as ImagePicker from "expo-image-picker";
-import React, { FC, useCallback, useState } from "react";
+import React, { FC, useCallback, useEffect, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Container = styled.View`
@@ -54,6 +54,38 @@ const AddProfileScreen: FC<Props> = ({ navigation, route }) => {
     (state) => state.communitiesById[communityId]
   );
 
+  // 프로필 수정 모드일 때 기존 프로필 정보 불러오기
+  useEffect(() => {
+    if (id && community) {
+      // 기존 닉네임 설정
+      if (community.nickName) {
+        setNickname(community.nickName);
+      }
+
+      // 기존 프로필 이미지 설정
+      if (community.profileImage) {
+        // profileImageType과 profileImage를 조합하여 data URI 생성
+        if (community.profileImageType && community.profileImage) {
+          // 이미 type과 image가 조합된 형태인지 확인
+          if (community.profileImage.startsWith("data:")) {
+            setProfileImage(community.profileImage);
+          } else {
+            // type과 image를 조합
+            setProfileImage(
+              `${community.profileImageType}${community.profileImage}`
+            );
+          }
+        } else if (community.profileImage.startsWith("data:")) {
+          // 이미 data URI 형태인 경우
+          setProfileImage(community.profileImage);
+        } else {
+          // base64 문자열이지만 prefix가 없는 경우 (기본값으로 image/png 사용)
+          setProfileImage(`data:image/png;base64,${community.profileImage}`);
+        }
+      }
+    }
+  }, [id, community]);
+
   const onChangeNickName = useCallback((text: string) => {
     setNickname(text);
   }, []);
@@ -81,22 +113,39 @@ const AddProfileScreen: FC<Props> = ({ navigation, route }) => {
       const response = await saveProfile({
         communityId: communityId?.toString(),
         nickName,
-        sortNo: "0",
-        imageStr: profileImage,
+        sortNo: community?.sortNo?.toString() || "0",
+        imageStr: profileImage || "", // 빈 문자열도 전송 (서버에서 처리)
+        id: id, // 프로필 수정 모드일 때 id 전달
       });
 
-      useCommunityStore.getState().updateCommunity({
-        ...community,
-        userId: response.data.userId,
-        nickName: response.data.nickName,
-        sortNo: response.data.sortNo,
-      });
+      // 응답 데이터 타입에 따라 처리
+      const responseData = response.data;
+      
+      if (id) {
+        // 프로필 수정 모드: CommunityUserDTO 반환
+        const dtoData = responseData as any;
+        useCommunityStore.getState().updateCommunity({
+          ...community,
+          userId: dtoData.userId,
+          nickName: dtoData.nickName,
+          // sortNo는 기존 값 유지
+        });
+      } else {
+        // 프로필 생성 모드: Profile 반환
+        const profileData = responseData as any;
+        useCommunityStore.getState().updateCommunity({
+          ...community,
+          userId: profileData.userId,
+          nickName: profileData.nickName,
+          sortNo: profileData.sortNo,
+        });
+      }
 
       navigation.goBack();
     } catch (e) {
       console.error(e);
     }
-  }, [communityId, navigation, nickName, profileImage, community]);
+  }, [communityId, navigation, nickName, profileImage, community, id]);
 
   return (
     <Container style={{ paddingBottom: bottom }}>
@@ -114,6 +163,7 @@ const AddProfileScreen: FC<Props> = ({ navigation, route }) => {
         <NicknameInput
           placeholder="닉네임을 입력해주세요."
           onChangeText={onChangeNickName}
+          value={nickName}
         />
       </InnerContainer>
       <ButtonContainer>

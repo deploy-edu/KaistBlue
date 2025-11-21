@@ -10,6 +10,8 @@ export type UserCommunity = {
   title: string;
   type: string;
   userId?: number;
+  profileImage?: string;
+  profileImageType?: string;
 };
 
 export type ResponseParams = {
