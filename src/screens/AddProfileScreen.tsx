@@ -1,7 +1,9 @@
 import CancelButton from "@/components/CancelButton";
 import Header from "@/components/Header";
+import NanumGothicText from "@/components/NanumGothicText";
 import NicknameInput from "@/components/NicknameInput";
 import SubmitButton from "@/components/SubmitButton";
+import deleteUserCommunity from "@/libs/apis/deleteUserCommunity";
 import saveProfile from "@/libs/apis/saveProfile";
 import { RootStackParamList } from "@/navigators/RootStackNavigator";
 import { useCommunityStore } from "@/stores/useCommunityStore";
@@ -9,6 +11,7 @@ import styled from "@emotion/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import * as ImagePicker from "expo-image-picker";
 import React, { FC, useCallback, useEffect, useState } from "react";
+import { Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Container = styled.View`
@@ -42,6 +45,22 @@ const ButtonContainer = styled.View`
   justify-content: center;
   gap: 24px;
   padding-horizontal: 16px;
+`;
+
+const DeleteButtonContainer = styled.View`
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 10px;
+`;
+
+const DeleteButton = styled.Pressable`
+  padding: 8px 16px;
+`;
+
+const DeleteButtonText = styled(NanumGothicText)`
+  font-size: 12px;
+  color: #999999;
+  text-decoration-line: underline;
 `;
 
 type Props = NativeStackScreenProps<RootStackParamList, "AddProfile">;
@@ -147,6 +166,57 @@ const AddProfileScreen: FC<Props> = ({ navigation, route }) => {
     }
   }, [communityId, navigation, nickName, profileImage, community, id]);
 
+  const onDelete = useCallback(() => {
+    if (!id || !communityId) {
+      return;
+    }
+
+    Alert.alert(
+      "탈퇴 확인",
+      "정말로 이 커뮤니티에서 탈퇴하시겠습니까?",
+      [
+        {
+          text: "취소",
+          style: "cancel",
+        },
+        {
+          text: "탈퇴",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteUserCommunity({
+                id,
+                communityId,
+              });
+
+              // 커뮤니티 스토어에서 해당 커뮤니티 제거
+              const store = useCommunityStore.getState();
+              const updatedCommunitiesById = { ...store.communitiesById };
+              delete updatedCommunitiesById[communityId];
+              const updatedCommunityIds = store.communityIds.filter(
+                (cid) => cid !== communityId
+              );
+
+              useCommunityStore.setState({
+                communitiesById: updatedCommunitiesById,
+                communityIds: updatedCommunityIds,
+              });
+
+              // 커뮤니티 목록 화면으로 이동
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "ClubList" }],
+              });
+            } catch (e) {
+              console.error(e);
+              Alert.alert("오류", "탈퇴 처리 중 오류가 발생했습니다.");
+            }
+          },
+        },
+      ]
+    );
+  }, [id, communityId, navigation]);
+
   return (
     <Container style={{ paddingBottom: bottom }}>
       <Header title={id ? "프로필수정" : "회원가입"} />
@@ -165,6 +235,13 @@ const AddProfileScreen: FC<Props> = ({ navigation, route }) => {
           onChangeText={onChangeNickName}
           value={nickName}
         />
+        {id && (
+          <DeleteButtonContainer>
+            <DeleteButton onPress={onDelete}>
+              <DeleteButtonText>탈퇴 하기</DeleteButtonText>
+            </DeleteButton>
+          </DeleteButtonContainer>
+        )}
       </InnerContainer>
       <ButtonContainer>
         <CancelButton onPress={onCancel} />
