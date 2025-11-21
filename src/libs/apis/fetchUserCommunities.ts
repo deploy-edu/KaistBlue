@@ -12,6 +12,7 @@ export type UserCommunity = {
   userId?: number;
   profileImage?: string;
   profileImageType?: string;
+  memberCount?: number;
 };
 
 export type ResponseParams = {

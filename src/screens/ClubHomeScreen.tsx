@@ -136,6 +136,7 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
               onBack={onBack}
               onWrite={onWrite}
               onProfile={onProfile}
+              memberCount={community.memberCount || 0}
               style={{
                 transform: [
                   {

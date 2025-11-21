@@ -16,6 +16,7 @@ type Props = {
   onProfile?: () => void;
   title: string;
   desc: string;
+  memberCount?: number;
 };
 
 const TopContainer = styled.View`
@@ -101,6 +102,7 @@ const ClubHeader: FC<Props> = ({
   title,
   desc,
   style,
+  memberCount = 0,
 }) => {
   const { top } = useSafeAreaInsets();
 
@@ -127,7 +129,7 @@ const ClubHeader: FC<Props> = ({
         </TopContainer>
         <Description>{desc}</Description>
         <BottomContainer>
-          <MemberCount count={100} />
+          <MemberCount count={memberCount} />
           <WriteButtonContainer onPress={onWrite}>
             <WriteButtonIcon source={WriteIcon} />
             <WriteButtonTitle>글쓰기</WriteButtonTitle>

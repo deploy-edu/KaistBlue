@@ -10,6 +10,7 @@ export type Community = {
   image: string;
   createdAt: Date;
   imageStr: string;
+  memberCount?: number;
 };
 
 export type ResponseParams = {

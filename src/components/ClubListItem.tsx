@@ -99,7 +99,7 @@ const ClubListItem: FC<Props> = ({ style, id, onPress }) => {
             <Desc>{community.summary}</Desc>
           </TopContainer>
           <BottomContainer>
-            <MemberCount count={100} />
+            <MemberCount count={community.memberCount || 0} />
             <ClubArrowRightIcon />
           </BottomContainer>
         </LinearGradientContainer>
