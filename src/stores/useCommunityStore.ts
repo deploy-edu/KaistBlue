@@ -13,6 +13,8 @@ type CommunityStoreState = {
 type CommunityStoreActions = {
   setCommunities: (data: CommunityData[]) => void;
   updateCommunity: (data: CommunityData) => void;
+  incrementMemberCount: (communityId: number) => void;
+  decrementMemberCount: (communityId: number) => void;
 };
 
 export const useCommunityStore = create(
@@ -42,6 +44,34 @@ export const useCommunityStore = create(
             [data.communityId]: data,
           },
         });
+      },
+      incrementMemberCount: (communityId) => {
+        const community = get().communitiesById[communityId];
+        if (community) {
+          set({
+            communitiesById: {
+              ...get().communitiesById,
+              [communityId]: {
+                ...community,
+                memberCount: (community.memberCount || 0) + 1,
+              },
+            },
+          });
+        }
+      },
+      decrementMemberCount: (communityId) => {
+        const community = get().communitiesById[communityId];
+        if (community) {
+          set({
+            communitiesById: {
+              ...get().communitiesById,
+              [communityId]: {
+                ...community,
+                memberCount: Math.max((community.memberCount || 0) - 1, 0),
+              },
+            },
+          });
+        }
       },
     }),
     {

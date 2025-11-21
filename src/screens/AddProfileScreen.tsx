@@ -143,21 +143,74 @@ const AddProfileScreen: FC<Props> = ({ navigation, route }) => {
       if (id) {
         // 프로필 수정 모드: CommunityUserDTO 반환
         const dtoData = responseData as any;
-        useCommunityStore.getState().updateCommunity({
+        const updatedCommunity: CommunityData = {
           ...community,
           userId: dtoData.userId,
           nickName: dtoData.nickName,
           // sortNo는 기존 값 유지
-        });
+        };
+        
+        // 프로필 이미지 정보 업데이트
+        // 응답에 image 필드가 있으면 사용하고, 없으면 로컬 상태의 profileImage 사용
+        if (dtoData.image) {
+          // 응답의 image 필드 처리
+          if (dtoData.image.startsWith("data:")) {
+            // 이미 data URI 형태
+            updatedCommunity.profileImage = dtoData.image;
+            updatedCommunity.profileImageType = dtoData.image.split(";")[0] || undefined;
+          } else {
+            // base64 문자열만 있는 경우
+            updatedCommunity.profileImage = dtoData.image;
+            updatedCommunity.profileImageType = dtoData.type || "data:image/png;base64,";
+          }
+        } else if (profileImage) {
+          // 응답에 image가 없으면 로컬 상태의 profileImage 사용
+          updatedCommunity.profileImage = profileImage;
+          if (profileImage.startsWith("data:")) {
+            updatedCommunity.profileImageType = profileImage.split(";")[0] || undefined;
+          } else {
+            updatedCommunity.profileImageType = "data:image/png;base64,";
+          }
+        }
+        
+        useCommunityStore.getState().updateCommunity(updatedCommunity);
       } else {
         // 프로필 생성 모드: Profile 반환
         const profileData = responseData as any;
-        useCommunityStore.getState().updateCommunity({
+        const updatedCommunity: CommunityData = {
           ...community,
           userId: profileData.userId,
           nickName: profileData.nickName,
           sortNo: profileData.sortNo,
-        });
+        };
+        
+        // 프로필 이미지 정보 업데이트
+        // 응답에 image 필드가 있으면 사용하고, 없으면 로컬 상태의 profileImage 사용
+        if (profileData.image) {
+          // 응답의 image 필드 처리
+          if (profileData.image.startsWith("data:")) {
+            // 이미 data URI 형태
+            updatedCommunity.profileImage = profileData.image;
+            updatedCommunity.profileImageType = profileData.image.split(";")[0] || undefined;
+          } else {
+            // base64 문자열만 있는 경우
+            updatedCommunity.profileImage = profileData.image;
+            updatedCommunity.profileImageType = profileData.type || "data:image/png;base64,";
+          }
+        } else if (profileImage) {
+          // 응답에 image가 없으면 로컬 상태의 profileImage 사용
+          updatedCommunity.profileImage = profileImage;
+          if (profileImage.startsWith("data:")) {
+            updatedCommunity.profileImageType = profileImage.split(";")[0] || undefined;
+          } else {
+            updatedCommunity.profileImageType = "data:image/png;base64,";
+          }
+        }
+        
+        useCommunityStore.getState().updateCommunity(updatedCommunity);
+        
+        // 회원 가입 시 memberCount 증가
+        useCommunityStore.getState().incrementMemberCount(communityId);
       }
 
       navigation.goBack();
@@ -184,6 +237,9 @@ const AddProfileScreen: FC<Props> = ({ navigation, route }) => {
           style: "destructive",
           onPress: async () => {
             try {
+              // 탈퇴 전에 memberCount 감소
+              useCommunityStore.getState().decrementMemberCount(communityId);
+              
               await deleteUserCommunity({
                 id,
                 communityId,
@@ -210,6 +266,8 @@ const AddProfileScreen: FC<Props> = ({ navigation, route }) => {
             } catch (e) {
               console.error(e);
               Alert.alert("오류", "탈퇴 처리 중 오류가 발생했습니다.");
+              // 오류 발생 시 memberCount 복구
+              useCommunityStore.getState().incrementMemberCount(communityId);
             }
           },
         },
