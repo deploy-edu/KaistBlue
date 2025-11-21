@@ -120,8 +120,8 @@ const ClubHomeScreen: FC<Props> = ({ navigation, route }) => {
         <ClubHeader
           image={`${community.type}${community.image}`}
           profileImage={profileImageUri}
-          title="창작과 문예"
-          desc={`상상이 현실이 되는 그 순간\n창작과 문예의 세계에 빠져보세요.`}
+          title={community?.title || ""}
+          desc={community?.summary || ""}
           onBack={onBack}
           onWrite={onWrite}
           onProfile={onProfile}
