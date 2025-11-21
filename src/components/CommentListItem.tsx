@@ -42,7 +42,15 @@ const CommentListItem: FC<Props> = ({ id }) => {
       <InnerContainer>
         <PublishingInfo
           nickname={comment.nickName || "닉네임"}
-          iconUrl={""}
+          iconUrl={
+            comment.profileImage
+              ? comment.profileImage.startsWith("data:")
+                ? comment.profileImage
+                : comment.profileType
+                ? `${comment.profileType}${comment.profileImage}`
+                : `data:image/png;base64,${comment.profileImage}`
+              : undefined
+          }
           publishedAt={dayjs(comment.createdAt).fromNow()}
           id={comment.userId}
         />

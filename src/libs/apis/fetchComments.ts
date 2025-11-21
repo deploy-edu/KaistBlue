@@ -9,6 +9,8 @@ export type Comment = {
   communityId: number;
   userId: number;
   content: string;
+  profileImage?: string;
+  profileType?: string;
 };
 
 export type RequestParams = {

@@ -144,11 +144,15 @@ const ViewArticleScreen: FC<Props> = ({ route }) => {
             <ArticleContents
               title={article.title}
               contents={article.content}
-              nickname={article.nickName}
+              nickname={article.nickName || "닉네임"}
               iconUrl={
-                article.profileType &&
-                article.profileImage &&
-                `${article.profileType}${article.profileImage}`
+                article.profileImage
+                  ? article.profileImage.startsWith("data:")
+                    ? article.profileImage
+                    : article.profileType
+                    ? `${article.profileType}${article.profileImage}`
+                    : `data:image/png;base64,${article.profileImage}`
+                  : undefined
               }
               publishedAt={dayjs(article.createdAt).format(
                 "YYYY-MM-DD HH:mm:ss"

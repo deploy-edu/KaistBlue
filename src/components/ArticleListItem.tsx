@@ -44,9 +44,13 @@ const ArticleListItem: FC<Props> = ({ id, onPress }) => {
         nickname={article.nickName || "닉네임"}
         publishedAt={dayjs(article.createdAt).fromNow()}
         iconUrl={
-          article.profileType &&
-          article.profileImage &&
-          `${article.profileType}${article.profileImage}`
+          article.profileImage
+            ? article.profileImage.startsWith("data:")
+              ? article.profileImage
+              : article.profileType
+              ? `${article.profileType}${article.profileImage}`
+              : `data:image/png;base64,${article.profileImage}`
+            : undefined
         }
         id={article.userId}
       />
